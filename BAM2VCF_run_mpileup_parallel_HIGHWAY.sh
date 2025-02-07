@@ -137,7 +137,7 @@ combinevcf2=TRUE		## Optional, as next step can also run on vcf file subsets. Ne
 # THIN DATA (OPTIONAL):
 thinallsites=FALSE		## Runs either on vcf file subsets or combined vcf file.
 thinallbp=100			# Select one site every n basepair (either monomorphic or polymorphic)
-combinethin=FALSE		## Runs either on vcf file subsets or combined vcf file.
+combinethin=FALSE		## Combine thinned file. Not really needed for anything really.
 
 # SNP SELECTION:
 selectvariants=FALSE	## Runs either on vcf file subsets or combined vcf file. Use the flags 'thinfactor' and 'biallelic' to specify input and output.
