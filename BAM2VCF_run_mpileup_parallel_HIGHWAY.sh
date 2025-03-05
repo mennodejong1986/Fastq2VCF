@@ -130,7 +130,7 @@ globalfilter=FALSE		## Runs either on vcf file subsets or combined vcf file. Use
 mindepth=225			# rule of thumb: around 0.6x overall meandepth (e.g: if mean depth per sample is 10, and you have 100 samples, then: 10*100*0.6 = 600). However, use calcdepth output (visualised with BAM2VCF_plotdepth.R script) to customise.
 maxdepth=500			# rule of thumb: around 1.5x overall meandepth (e.g: if mean depth per sample is 10, and you have 100 samples, then: 10*100*1.5 = 1500). However, use calcdepth output (visualised with BAM2VCF_plotdepth.R script) to customise.
 min_alleles=32			# recommendation: in the range of 1.6 - 1.95 * nrsamples in case of diploid data, and in the range of 0.8 - 0.975 * nrsamples in case of haploid data. 
-site_quality=30			# if you want to excluded this site quality filter, simply set to 0 or 1
+site_quality=15			# Do NOT set higher than 20. This causes a disproportionate loss of monomorphic sites relative to polymorphic sites, and hence biases He, pi and Dxy-estimates. To skip this site quality filter, simply set to 0 or 1
 removeindels=TRUE		# used by globalfilter step. By default set to TRUE.   
 combinevcf2=TRUE		## Optional, as next step can also run on vcf file subsets. Needed though as input for Darwindow ('PREFIX.globalfilter.vcf.gz').
 
@@ -138,6 +138,7 @@ combinevcf2=TRUE		## Optional, as next step can also run on vcf file subsets. Ne
 thinallsites=FALSE		## Runs either on vcf file subsets or combined vcf file.
 thinallbp=100			# Select one site every n basepair (either monomorphic or polymorphic)
 combinethin=FALSE		## Combine thinned file. Not really needed for anything really.
+countsites=FALSE		## Count number of sites prior to variant selection
 
 # SNP SELECTION:
 selectvariants=FALSE	## Runs either on vcf file subsets or combined vcf file. Use the flags 'thinfactor' and 'biallelic' to specify input and output.
@@ -405,6 +406,18 @@ if [[ "$combinethin" = TRUE ]]
 		else
 		echo "ERROR: No input files (e.g. PREFIX.globalfilter.thinX.mybed1.txt.vcf.gz) detected. Cannot combine."
 	fi
+fi
+
+if [[ "$countsites" = TRUE ]]
+	then
+	for myfile in ${PREFIX}.globalfilter.thin${thinallbp}.mybed*txt.vcf.gz
+        do
+        ls $myfile
+        ${BCFTOOLS} stats $myfile > ${myfile}.stats.txt &
+        done
+	wait
+	echo "Calculating total sum..."
+	grep 'number of records:' ${PREFIX}.globalfilter.thin${thinallbp}.mybed*txt.vcf.gz.stats.txt | cut -f4 | awk '{total += $1}END{print total}'
 fi
 
 if [[ "$selectvariants" = TRUE ]]
